@@ -1,0 +1,76 @@
+///| Sample Pion file exercising all syntax categories for TextMate / GitHub Linguist.
+import "std/io"
+
+#![verify]
+
+val MAX_ITEMS : Int = 64
+
+pub struct Point {
+  x : Double
+  mut y : Double
+}
+
+pub enum Shape {
+  Circle(Double)
+  Rect(Double, Double)
+}
+
+pub trait Area {
+  fn area(self : Self) -> Double
+}
+
+#verify
+impl Area for Shape {
+  fn area(self : Shape) -> Double {
+    match self {
+      Circle(r) => 3.1415926 * r * r
+      Rect(w, h) => w * h
+    }
+  }
+}
+
+#no_io
+pub fn describe(into label~ : String = "shape", view? : StrView, shape : Shape) -> String {
+  let banner =
+  #|Pion multi-line raw string
+  #|second line
+  let hex = 0xFF_00UL
+  let flt = 1.5e-2f
+  let ch = '\u{4E2D}'
+  let byte = b'\x41'
+  debug_assert(hex > 0UL && flt > 0.0f && MAX_ITEMS > 0)
+  let _ = (banner, ch, byte, view)
+  "\{label}: area=\{shape.area()}"
+}
+
+pub fn render_card(title : String, on_click : () -> Unit) -> Unit {
+  let _ = <ui::Card padding={12.0} on_press=>{ on_click() } active>
+    <>
+      <ui::Label text={title} />
+    </>
+  </ui::Card>
+}
+
+pub fn main(world : World) -> Int {
+  let mut total = 0.0
+  let items : Array[Shape] = [Circle(2.0), Rect(3.0, 4.0)]
+  for i in 0..<items.length() {
+    total += items[i].area()
+  }
+  scope(world, fn(s : Scope) -> Unit {
+    spawn(s, fn() -> Unit {
+      let msg = describe(label="sum", items[0])
+      io::println(msg)
+    })
+  })
+  if total > 0.0 {
+    0
+  } else {
+    1
+  }
+}
+
+test "shape area" {
+  let s = Rect(3.0, 4.0)
+  debug_assert(s.area() == 12.0)
+}
